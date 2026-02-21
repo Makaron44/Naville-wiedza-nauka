@@ -12,7 +12,7 @@ Aplikacja wspierająca naukę i praktykę Prawa Założenia Neville'a Goddarda.
 - **Prywatność**: Klucz API Gemini oraz historia rozmów są przechowywane wyłącznie w pamięci lokalnej Twojego urządzenia.
 
 ## Konfiguracja API
-Aplikacja korzysta z modelu **Gemini 2.0 Flash Lite**. Aby korzystać z Mentora AI:
+Aplikacja korzysta z modelu **Gemini 2.5 Flash Lite**. Aby korzystać z Mentora AI:
 1. Wejdź w **Ustawienia**.
 2. Wklej swój klucz API Gemini (pobierz go z [Google AI Studio](https://aistudio.google.com/)).
 3. Zapisz ustawienia.

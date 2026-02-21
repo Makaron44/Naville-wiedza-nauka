@@ -38,7 +38,7 @@ export const getAIResponse = async (
   }
 
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-2.0-flash-lite-preview-02-05';
+  const model = 'gemini-2.5-flash-lite';
 
   try {
     const response = await ai.models.generateContent({
@@ -72,7 +72,7 @@ export const testConnection = async (apiKey: string): Promise<{ success: boolean
   try {
     // Simple test call
     await ai.models.generateContent({
-      model: 'gemini-2.0-flash-lite-preview-02-05',
+      model: 'gemini-2.5-flash-lite',
       contents: "Test connection",
       config: { maxOutputTokens: 1 }
     });
