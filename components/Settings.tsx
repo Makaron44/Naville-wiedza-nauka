@@ -49,18 +49,25 @@ const Settings: React.FC = () => {
     setTestStatus({ loading: false, message: result.message, success: result.success });
   };
 
-  const handleExport = () => {
-    const sessions = localStorage.getItem(SESSIONS_KEY);
-    const blob = new Blob([sessions || '[]'], { type: 'application/json' });
+  const handleExportAll = () => {
+    const allData: Record<string, string | null> = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('neville_') || key === 'gratitude_entries' || key === 'book_notes')) {
+        allData[key] = localStorage.getItem(key);
+      }
+    }
+
+    const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `neville-history-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `neville-full-backup-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -68,11 +75,19 @@ const Settings: React.FC = () => {
     reader.onload = (event) => {
       try {
         const content = event.target?.result as string;
-        JSON.parse(content); // Validate JSON
-        localStorage.setItem(SESSIONS_KEY, content);
-        alert('Historia zaimportowana pomyślnie! Odśwież stronę mentora.');
+        const data = JSON.parse(content);
+
+        if (confirm('Import wszystkich danych zastąpi obecne notatki, historię i ustawienia. Czy kontynuować?')) {
+          Object.entries(data).forEach(([key, value]) => {
+            if (typeof value === 'string') {
+              localStorage.setItem(key, value);
+            }
+          });
+          alert('Wszystkie dane zostały przywrócone! Aplikacja zostanie odświeżona.');
+          window.location.reload();
+        }
       } catch (err) {
-        alert('Błąd podczas importowania pliku.');
+        alert('Błąd podczas importowania pliku kopii zapasowej.');
       }
     };
     reader.readAsText(file);
@@ -180,22 +195,22 @@ const Settings: React.FC = () => {
           {saveStatus && <p className="text-green-400 animate-pulse font-medium">{saveStatus}</p>}
         </section>
 
-        {/* History Management */}
+        {/* Backup Management */}
         <section className="glass p-8 rounded-3xl space-y-6">
-          <h3 className="text-2xl font-bold text-white serif">Zarządzanie Historią</h3>
-          <p className="text-gray-400">Eksportuj swoje rozmowy do pliku JSON lub zaimportuj je z innego urządzenia.</p>
+          <h3 className="text-2xl font-bold text-white serif">Kopia Zapasowa (Wszystkie Dane)</h3>
+          <p className="text-gray-400">Pobierz pełną kopię zapasową swoich nauk, notatek i rozmów w jednym pliku.</p>
 
           <div className="flex flex-col sm:flex-row gap-4">
             <button
-              onClick={handleExport}
-              className="flex-1 bg-white/10 hover:bg-white/20 text-amber-200 border border-amber-500/30 py-4 px-6 rounded-xl transition flex items-center justify-center space-x-2"
+              onClick={handleExportAll}
+              className="flex-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/50 py-4 px-6 rounded-xl transition-all flex items-center justify-center space-x-2 gold-glow"
             >
-              <span>📥</span> <span>Eksportuj Historię</span>
+              <span>💾</span> <span>Eksportuj Wszystko</span>
             </button>
 
-            <label className="flex-1 bg-white/10 hover:bg-white/20 text-amber-200 border border-amber-500/30 py-4 px-6 rounded-xl transition flex items-center justify-center space-x-2 cursor-pointer text-center">
-              <span>📤</span> <span>Importuj Historię</span>
-              <input type="file" accept=".json" onChange={handleImport} className="hidden" />
+            <label className="flex-1 bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 py-4 px-6 rounded-xl transition-all flex items-center justify-center space-x-2 cursor-pointer text-center">
+              <span>📂</span> <span>Przywróć z Pliku</span>
+              <input type="file" accept=".json" onChange={handleImportAll} className="hidden" />
             </label>
           </div>
         </section>
